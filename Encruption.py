@@ -4,15 +4,15 @@ from key import key
 
 class Encruption:
     def __init__(self, text_path : str, key_path : str, result_path : str, mode : int):
-        self.Substitution = np.array([["c", "4", "6", "2", "a", "5", "b", "9", "e", "8", "d", "7", "0", "3", "f", "1"],
-                                    ["6", "8", "2", "3", "9", "a", "5", "c", "1", "e", "4", "7", "b", "d", "0", "f"],
-                                    ["b", "3", "5", "8", "2", "f", "a", "d", "e", "1", "7", "4", "c", "9", "6", "0"],
-                                    ["c", "8", "2", "1", "d", "4", "f", "6", "7", "0", "a", "5", "3", "e", "9", "b"],
-                                    ["7", "f", "5", "a", "8", "1", "6", "d", "0", "9", "3", "e", "b", "4", "2", "c"],
-                                    ["5", "d", "f", "6", "9", "2", "c", "a", "b", "7", "8", "1", "4", "3", "e", "0"],
-                                    ["8", "e", "2", "5", "6", "9", "1", "c", "f", "4", "b", "0", "d", "a", "3", "7"],
-                                    ["1", "7", "e", "d", "0", "5", "8", "3", "4", "f", "a", "6", "9", "c", "b", "2"]])
-
+        self.Substitution = np.array([["c", "4", "6", "2", "a", "5", "b", "9", "e", "8", "d", "7", "0", "3", "f", "1"],# 8
+                                    ["6", "8", "2", "3", "9", "a", "5", "c", "1", "e", "4", "7", "b", "d", "0", "f"],  # 7
+                                    ["b", "3", "5", "8", "2", "f", "a", "d", "e", "1", "7", "4", "c", "9", "6", "0"],  # 6
+                                    ["c", "8", "2", "1", "d", "4", "f", "6", "7", "0", "a", "5", "3", "e", "9", "b"],  # 5
+                                    ["7", "f", "5", "a", "8", "1", "6", "d", "0", "9", "3", "e", "b", "4", "2", "c"],  # 4
+                                    ["5", "d", "f", "6", "9", "2", "c", "a", "b", "7", "8", "1", "4", "3", "e", "0"],  # 3
+                                    ["8", "e", "2", "5", "6", "9", "1", "c", "f", "4", "b", "0", "d", "a", "3", "7"],  # 2
+                                    ["1", "7", "e", "d", "0", "5", "8", "3", "4", "f", "a", "6", "9", "c", "b", "2"]]) # 1
+                                    # a = 10, b = 11, c = 12, d = 13, e = 14, f = 15
         self.keys = key(key_path)
 
         self.text = []
@@ -51,6 +51,8 @@ class Encruption:
         encruption = ""
         for i in new_text:
             encruption += i
+        if len(encruption) % 2 != 0:
+            encruption += "0"
         with open(result_path, "wb") as f:
             f.write(bytes.fromhex(encruption))
         print(bytes.fromhex(encruption))
@@ -58,7 +60,7 @@ class Encruption:
     def __Encruption_first_step(self, second_current_text, round_key):
         summ_mod = (int(second_current_text, 16) + int(round_key, 16)) % (2 ** 32)
         hex_summ = hex(summ_mod)[2:]
-        if len(hex_summ) <8:
+        if len(hex_summ) < 8:
             hex_summ = ("0" * (8 - len(hex_summ))) + hex_summ
         return hex_summ
 
@@ -76,12 +78,10 @@ class Encruption:
 
     def __Encruption_four_step(self, first_current_text, third_step):
         bin_form = bin(int(first_current_text, 16))[2:]
-        if len(bin_form) % 4 != 0:
-            bin_form = ("0" * (4 - (len(bin_form) % 4))) + bin_form
         
         xor = str(int(bin_form) + int(third_step))
-        if len(xor) % 4 != 0:
-            xor = ("0" * (4 - (len(xor) % 4))) + xor
+        if len(xor) < 32:
+            xor = ("0" * (32 - len(xor))) + xor
         for i in range(len(xor)):
             xor = xor[:i] + str(int(xor[i]) % 2) + xor[i + 1:]
 
